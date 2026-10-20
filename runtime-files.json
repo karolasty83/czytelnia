@@ -1,0 +1,18 @@
+{
+  "ffplay.exe": {
+    "bytes": 100213760,
+    "sha256": "5ad5cf16494bfb1a472ab1da0cae0183cffe29d79761a8ba99b06b9594e98d43"
+  },
+  "ffprobe.exe": {
+    "bytes": 98532352,
+    "sha256": "dd315ae1b6575220f9a503343d68e55983b5bf966a43c63874f3c646dc83742f"
+  },
+  "tools/7z.exe": {
+    "bytes": 577536,
+    "sha256": "6ee3c0ed0b27663c1b948ae85a7c0bb073aed1498983182f3f0df1f6a8c30b2f"
+  },
+  "tools/7z.dll": {
+    "bytes": 1906688,
+    "sha256": "65e4c1f855f9ef6e8f0f5df8e3f27d9eb5f07311408639da0a1ca0b8f4871b0d"
+  }
+}

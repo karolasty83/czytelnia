@@ -1,0 +1,303 @@
+CZYTELNIA 1.01
+
+Paczka: czytelnia-1.01.nvda-addon. Skrót globalny: NVDA+Shift+C.
+Biblioteka nie ma paska menu pod Altem. Pozostają skróty i menu kontekstowe.
+Przycisk Pomoc (F1) oraz F1 w oknie biblioteki otwierają dołączony podręcznik.
+Zachowuje numerację odcinków, pauzę przy zmianie części, zakładki
+oraz poprawkę rozpoczynania odtwarzania dla WinError 10053.
+Nie została automatycznie zainstalowana.
+Wymaga NVDA 2025.1 lub nowszego i Windows 10/11.
+Narzędzia ffplay.exe, ffprobe.exe oraz 7-Zip 26.03 x64 są już w paczce.
+ZIP nadal korzysta z wewnętrznego Pythona NVDA, a RAR (także RAR5) i 7z
+z dołączonego 7-Zipa. Nie trzeba instalować Pythona, FFmpeg ani 7-Zipa.
+Archiwa zaszyfrowane i podzielone na części nie są obsługiwane; rozpakuj je
+samodzielnie i dodaj folder. Nie rozpakowujemy archiwów ukrytych w archiwach.
+
+LOKALNY DZIENNIK BŁĘDÓW
+Plik czytelnia.log powstaje dopiero przy błędzie odtwarzania lub operacji,
+w %LOCALAPPDATA%\Czytelnia\biblioteka, obok folderów książek.
+Zawiera datę, etap i szczegóły diagnostyczne. Zwykłe słuchanie nie dopisuje wpisów.
+Limit pliku to 1 MiB; poprzednia kopia nosi nazwę czytelnia.log.1.
+Log jest lokalny i nie jest nigdzie wysyłany. Może zawierać nazwy i ścieżki plików.
+Nieudany zapis logu nie zastępuje właściwego błędu ani komunikatu głosowego.
+Od wersji 0.1.25 dostępna jest diagnostyka. Wersja 0.1.30 zawiera również
+poprawkę rozpoczynania odtwarzania dla sporadycznego WinError 10053.
+
+OBSŁUGA PO SAMODZIELNEJ INSTALACJI
+NVDA+Shift+C raz: otwórz bibliotekę (krótkie oczekiwanie na ewentualne drugie naciśnięcie).
+NVDA+Shift+C dwa razy szybko na zaznaczonym archiwum ZIP, RAR lub 7z w Eksploratorze:
+otwórz okno „Dodawanie książek do biblioteki” z pytaniem
+„Czy chcesz dodać do biblioteki: [tytuł]?”. Tak rozpoczyna import, Nie anuluje.
+Przyciski mają skróty Alt+T i Alt+N. Tytuł pochodzi z nazwy archiwum bez rozszerzenia.
+Domyślnie wybrane jest Nie, aby uniknąć przypadkowego importu.
+Można również zaznaczyć folder książki albo wejść do niego. Jeśli zawiera
+bezpośrednio nagrania, dodatek zapyta o import z pełną nazwą folderu jako tytułem.
+Zaznaczony folder ma pierwszeństwo: jego sąsiednie foldery i pliki nie są skanowane.
+Nie trzeba zaznaczać pliku audio. Tak kopiuje nagrania, Nie anuluje.
+Kopiowane są tylko nagrania bezpośrednio w tym folderze, bez schodzenia głębiej.
+Jeżeli nie ma ich bezpośrednio, ale jest jeden podfolder, usłyszysz:
+„Folder zawiera podfolder. Otwórz go i zaznacz folder z nagraniami”.
+Przy kilku podfolderach komunikat używa słowa „podfoldery”. Import nie rusza.
+Ta sama zasada dotyczy przycisku Dodaj folder. Import archiwów pozostaje bez zmian.
+W otwartym folderze bez nagrań i podfolderów można nadal wybrać archiwum z listy.
+Jeśli zaznaczono kilka elementów, dodatek poprosi o zaznaczenie jednego źródła.
+W bibliotece są też Dodaj archiwum i Dodaj folder.
+Podczas dodawania pojawia się okno „Import książki do biblioteki”
+z opisem „Trwa import książki” i natywnym paskiem postępu. Po zakończeniu zastępuje je biblioteka,
+z zaznaczoną dodaną książką i fokusem na liście. Odtwarzanie nie rusza samo.
+
+MENU I PRZYCISKI
+Przycisk Pomoc (F1) i klawisz F1 otwierają podręcznik w domyślnej przeglądarce.
+F1 działa tylko w oknie biblioteki, nie globalnie ani w jej oknach dialogowych.
+Ten sam podręcznik jest dostępny z menadżera dodatków NVDA.
+Menu kontekstowe zaznaczonej książki otwierają klawisz menu, Shift+F10
+lub prawy przycisk myszy. Zawiera: Słuchaj, Zakładki, Wróć do słuchania,
+Przesunięcie numeracji odcinków oraz Usuń książkę. Usuwanie wymaga potwierdzenia.
+W oknie pozostały przyciski Słuchaj, Pauza / wznów, Dodaj archiwum,
+Dodaj folder, Pomoc (F1) i Zamknij. Pozostałe skróty klawiaturowe są bez zmian.
+
+Po otwarciu biblioteki zaznaczona jest pierwsza książka (także gdy jest jedyna),
+z fokusem na liście. Samo otwarcie nie rozpoczyna odtwarzania.
+Enter lub Spacja na liście: uruchom zaznaczoną książkę od zapisanego miejsca.
+Jeśli zaznaczona książka jest już wczytana, oba klawisze przełączają pauzę
+i wznowienie. Samo poruszanie się po liście nie zmienia słuchanej książki.
+Słuchaj: odtwarzaj zaznaczoną książkę od zapisanego miejsca.
+Ctrl+P oraz przycisk Pauza / wznów: działają na zaznaczonej książce,
+tak samo jak Enter i Spacja. Inna książka zostaje uruchomiona od zapisanego
+miejsca; już wczytana jest pauzowana lub wznawiana.
+Ctrl+lewo/prawo: cofnij / dalej o 5 sekund, bez komunikatu o czasie.
+Głośność przy przytrzymaniu zmienia się zgodnie z systemowym powtarzaniem
+klawiatury Windows, jak w zwykłym suwaku; każde powtórzenie to jeden punkt.
+Przewijanie i tempo zgłaszają kolejne kroki co około 100 ms. Oczekujące zmiany
+są łączone: przy przewijaniu odtwarzacz potwierdza skok przed wykonaniem
+następnego celu, bez kolejki zaległych naciśnięć.
+Puszczenie skrótu, zmiana fokusu lub zamknięcie okna kończą regulację.
+Podczas trzymania przewijania słychać fragmenty odtwarzanego nagrania,
+z krótkimi przerwami na skoki. Puszczenie kończy przewijanie i zapisuje miejsce.
+Zmiana tempa nadal wstrzymuje dźwięk do puszczenia skrótu; potem wznawia
+odtwarzanie z wybranym tempem, jeśli wcześniej grało.
+Przewijanie podczas pauzy nie wznawia książki. Przewinięcie do końca nie
+uruchamia automatycznie kolejnej części. Głośność zmienia się bez pauzy,
+a jej komunikaty są ograniczone do dwóch na sekundę plus wartości końcowej.
+Alt+lewo/prawo: poprzednia / następna część od początku; komunikat „Odcinek X”
+lub „Wstęp” według ustawionej numeracji. Podczas pauzy nowa część pozostaje
+w pauzie; podczas grania odtwarza się od razu. Enter lub Spacja wznawia
+z wybranego miejsca. Przejście po zakończeniu części też nie uruchamia dźwięku.
+Próba przejścia przed pierwszą: „Początek książki”, za ostatnią: „Koniec książki”.
+Na granicy nic nie jest przewijane ani uruchamiane ponownie.
+Ctrl+I: „[czas] do końca odcinka”, a na jego końcu „Koniec odcinka”.
+Dla zakończonego wstępu: „Koniec wstępu”.
+Ctrl+Shift+I: „[czas] do końca książki”, a na jej końcu „Koniec książki”.
+Ręczny odczyt nie jest wyciszany. Koniec nie jest ustalany z zaokrąglenia czasu.
+Po przejściu na początek innej części odczyt podaje jej pełny czas, także w pauzie.
+Czas wynika z bieżącego miejsca w nagraniu, a nie z historii słuchania.
+Pominięcie części zmniejsza czas do końca książki, cofnięcie go zwiększa.
+Oba skróty odczytują czas z polską odmianą, np. „3 godziny i 4 minuty”.
+Od minuty wzwyż podają godziny/minuty bez sekund i jednostek zerowych.
+Poniżej minuty podają sekundy. Pozostały czas nagrania dzielimy przez aktualną
+prędkość, więc najbliższy odczyt od razu uwzględnia zmianę tempa. Nie doliczamy
+pauz ani przerw między odcinkami. Długości w JSON-ie pozostają oryginalne.
+Przy dodawaniu książki ffprobe mierzy długość każdej części. Wyniki są zapisywane
+w czytelnia_config.json i pozostają dostępne po restarcie NVDA. Odczyt czasu
+korzysta z zapisanych długości i bieżącej pozycji odtwarzacza; nie analizuje
+ponownie niezmienionych nagrań. Zmiana rozmiaru lub czasu modyfikacji pliku
+unieważnia jego pomiar. Nie ma migracji ani uzupełniania starych wpisów —
+ta wersja jest przeznaczona do biblioteki tworzonej od nowa.
+Delete na liście / Usuń książkę: pytanie
+„Usunąć kopię książki z biblioteki wraz z postępem i zakładkami?”.
+Usunięcie obejmuje również wszystkie zakładki tej książki. Ponowne dodanie
+usuniętej książki nie przywraca jej postępu ani zakładek.
+Po usunięciu: „Usunięto kopię książki z biblioteki.”. Oryginał pozostaje nietknięty.
+Escape: zamknij okno biblioteki; odtwarzanie trwa nadal.
+Automatyczna zmiana części: koniec nagrania, przygotowanie kolejnej części,
+sekunda ciszy, „Odcinek X”, sekunda i odtwarzanie.
+Przy zatrzymaniu na końcu części: „Koniec odcinka X”; na końcu książki: „Koniec książki”.
+Druga sekunda jest liczona od przekazania komunikatu do NVDA, nie od końca
+wypowiedzi syntezatora. Wyłączenie komunikatów nie zmienia długości tych przerw.
+Pauza w tej przerwie anuluje automatyczny start; ponowne wznowienie uruchamia
+już przygotowaną kolejną część. Przewijanie lub ręczna zmiana części także
+unieważniają opóźniony start.
+Podstawowe akcje mają także przyciski obsługiwane Tabulatorem.
+W pustej bibliotece pozostają przyciski Dodaj archiwum, Dodaj folder, Pomoc (F1) i Zamknij.
+Przyciski Słuchaj oraz Pauza / wznów pojawiają się po dodaniu książki.
+Wyłącznik czasowy jest dostępny pod skrótem Shift+T na liście książek.
+
+PRZESUNIĘCIE NUMERACJI ODCINKÓW
+Zaznacz książkę i na liście naciśnij Ctrl+N albo wybierz z menu kontekstowego
+„Przesunięcie numeracji odcinków…”. Menu otwiera Shift+F10, klawisz menu
+lub prawy przycisk myszy. Tytuł okna: „Przesunięcie numeracji odcinków”.
+W oknie wybierz „Ustaw bieżący odcinek jako pierwszy” lub
+„Przywróć domyślną numerację” i zatwierdź. Anuluj/Escape niczego nie zapisuje.
+Bieżący odcinek pochodzi z tej zaznaczonej książki: jeśli jest wczytana,
+z odtwarzacza; w przeciwnym razie z jej zapisanego miejsca. Okno wskazuje plik,
+którego dotyczy zmiana. Automatyczna zmiana części podczas otwartego okna
+nie zmienia wskazanego celu.
+Przykład: ustawienie drugiego pliku jako pierwszego daje „Wstęp”,
+„Odcinek 1”, „Odcinek 2”. Przy kilku wcześniejszych plikach: „Wstęp 1”,
+„Wstęp 2” itd. Kolejna zmiana zastępuje poprzednie przesunięcie.
+Ustawienie jest osobne dla każdej książki i zachowane po restarcie.
+Dotyczy komunikatów i numerów w zakładkach, nie nazw ani kolejności plików.
+Nie zmienia postępu, miejsc zakładek, punktu powrotu ani stanu odtwarzania.
+Wstępy nadal grają, wliczają się do czasu książki i licznika wyłącznika.
+
+ZAKŁADKI
+Ctrl+D na liście książek: dodaj zakładkę w aktualnym miejscu wczytanej książki,
+zarówno podczas odtwarzania, jak i pauzy. Zaznaczenie innej książki nie zmienia
+celu dodawania. Nie trzeba przerywać słuchania ani wpisywać nazwy.
+Nowe zakładki otrzymują nazwę „Zakładka”, bez numeru. Obok jest odcinek
+i czas w formacie godziny:minuty:sekundy. Własną nazwę możesz nadać przez F2.
+Istniejące nazwy pozostają bez zmian. Nowa zakładka nie zastępuje poprzednich.
+Ctrl+B na liście książek: otwórz zakładki książki ZAZNACZONEJ na liście.
+Jeśli nie ma zakładek, usłyszysz „brak zakładek”; puste okno się nie otwiera.
+Lista zawiera nazwę zakładki, odcinek i czas w nagraniu, także sekundy.
+Zakładki są uporządkowane według odcinka, a w nim według czasu nagrania.
+Zmiana nazwy nie zmienia kolejności. Przeglądanie nie zmienia
+odtwarzania. Enter na zakładce rozpoczyna słuchanie od jej miejsca.
+Kolejność Tab: lista, Zmień nazwę (F2), Usuń, Zamknij.
+F2 na liście lub przycisk Zmień nazwę (F2) otwiera zmianę nazwy.
+Menu kontekstowe (klawisz menu, Shift+F10 lub prawy przycisk myszy) zawiera
+Zmień nazwę ze skrótem F2 oraz Usuń. Po zmianie nazwy fokus wraca na tę zakładkę.
+Delete na liście zakładek działa tak samo jak przycisk Usuń.
+Usunięcie zakładki wymaga potwierdzenia i nie usuwa nagrań ani postępu.
+Escape zamyka listę zakładek i wraca do biblioteki.
+
+POWRÓT DO SŁUCHANIA
+Przed pierwszym przejściem do zakładki dodatek zapamiętuje miejsce słuchania
+tej książki. Kolejne skoki między zakładkami go nie nadpisują.
+Ctrl+Shift+B w bibliotece przywraca to miejsce w ZAZNACZONEJ książce.
+Możesz też wybrać Wróć do słuchania z menu kontekstowego książki.
+Ten sam skrót działa w otwartej liście zakładek i dotyczy jej książki.
+Udany powrót rozpoczyna odtwarzanie i mówi „Powrót do słuchania.”.
+Gdy nie ma miejsca powrotu, także po ponownym naciśnięciu, skrót milczy
+i nie zmienia odtwarzania.
+Miejsce powrotu jest osobne dla każdej książki, przetrwa restart NVDA
+i nie pojawia się na liście zwykłych zakładek. Po udanym powrocie jest
+usuwane; następny skok do zakładki zapamięta nowe miejsce. Jeżeli książka
+nie była wczytana, punktem powrotu jest jej ostatni zapisany postęp.
+Usunięcie książki usuwa również jej miejsce powrotu.
+
+GŁOŚNOŚĆ I TEMPO
+Na liście książek podczas odtwarzania Shift+góra/dół zmieniają głośność o jeden
+punkt procentowy (0–100). Ctrl+Shift+góra/dół zmieniają tempo o 0,5×, w zakresie 1×–2×,
+z komunikatami „Prędkość 1×”, „Prędkość 1,5×” itd. Na granicy 2× dalsze
+zwiększanie niczego nie zmienia: bez pauzy, restartu ani komunikatu. Tak samo
+dalsze zmniejszanie przy 1×. Sposób odczytania znaku ×
+zależy od syntezatora i ustawień symboli NVDA.
+Przycisk Słuchaj jest ukryty podczas odtwarzania i wraca po pauzie lub zatrzymaniu.
+Zwykłe góra/dół zawsze służą do poruszania się po liście, także podczas grania.
+Samo zaznaczenie innej książki nie przełącza odtwarzania; robi to dopiero Słuchaj.
+Skróty głośności i tempa działają na liście podczas grania. Nie przechwytujemy
+ich w polach wyłącznika ani poza oknem biblioteki.
+Głośność i tempo są wspólne dla wszystkich książek i zachowywane po restarcie NVDA.
+Zapis odbywa się po zmianie, a przy przytrzymaniu klawiszy — po ich puszczeniu.
+Istniejący plik czytelnia-ustawienia.json zostaje uzupełniony przy kolejnym zapisie,
+bez utraty dotychczasowych ustawień. Bez zapisanych wartości obowiązuje 100 procent i 1×.
+Ctrl+I i Ctrl+Shift+I podają czas słuchania przy aktualnej prędkości.
+
+KOLEJNE CZĘŚCI
+Shift+K podczas grania lub pauzy, z fokusem na liście książek: przełącz automatyczne odtwarzanie
+kolejnych części. Komunikat: „Przechodzenie do następnego odcinka włączone” albo
+„Przechodzenie do następnego odcinka wyłączone”. Panel Czytelnia w ustawieniach
+NVDA został usunięty; ustawienia zmieniamy skrótami w oknie biblioteki.
+Opcja domyślnie włączona, zapamiętywana po restarcie. Wyłączenie nie przerywa
+bieżącej części: zatrzyma się na jej końcu. Następne ręczne Słuchaj, Enter
+lub wznowienie zacznie kolejny odcinek, także po restarcie NVDA. Samo otwarcie
+okna biblioteki nie uruchamia odtwarzania. Po ostatnim odcinku książka pozostaje
+zakończona; aby słuchać ponownie, wybierz część ręcznie lub cofnij pozycję.
+
+KOMUNIKATY AUTOMATYCZNE
+Ctrl+Shift+K na liście: „Komunikaty automatyczne włączone” albo „Komunikaty
+automatyczne wyłączone”. Zmiana działa od razu i pozostaje po restarcie,
+tak jak ustawienie Shift+K. Domyślnie oba ustawienia są włączone.
+Wyłączenie wycisza samoczynne zmiany i zakończenie odtwarzania, również
+zatrzymanie przez wyłącznik. Ręczne polecenia, odczyty czasu, stan/anulowanie
+wyłącznika i błędy pozostają słyszalne.
+
+WYŁĄCZNIK CZASOWY
+Shift+T na liście książek podczas grania lub pauzy:
+  Gdy wyłącznik nieaktywny — otwiera konfigurację po czasie na drugie naciśnięcie.
+  Gdy aktywny — jedno naciśnięcie natychmiast odczytuje pozostały czas/odcinki i działanie,
+  np. „Wyłącznik czasowy aktywny. Za 15 minut zatrzymanie odtwarzania”.
+  Dwa szybkie naciśnięcia przerywają odczyt i anulują: „Wyłącznik czasowy anulowany”, bez okna.
+Przytrzymanie klawisza nie jest podwójnym naciśnięciem.
+Przycisk „Wyłącznik czasowy (Shift+T)” otwiera konfigurację, jeśli wyłącznik
+jest nieaktywny; jeśli pracuje, tylko odczytuje jego stan. Aby zmienić aktywny
+wyłącznik, anuluj go podwójnym Shift+T i ustaw ponownie.
+Shift+T, Shift+K i Ctrl+Shift+K nie działają w polach tekstowych ani w oknie wyłącznika.
+Zwykłe T i K pozostają do nawigacji po tytułach na liście.
+„Kiedy” jest listą bez możliwości wpisywania tekstu:
+  Po zakończeniu bieżącego odcinka;
+  Po określonej liczbie odcinków;
+  Za 15, 30, 45, 60, 75, 90, 105 lub 120 minut.
+Tylko druga opcja pokazuje pole „Liczba odcinków”, dostępne jednym Tabulatorem.
+Bieżący odcinek jest pierwszy: 2 oznacza dokończenie aktualnego i następnego.
+Nie można podać więcej odcinków, niż pozostało w książce.
+Przy innych opcjach Tab przechodzi od razu do „Działanie”. Nie ma własnych minut.
+„Działanie”: Zatrzymaj książkę, Przełącz komputer w stan uśpienia albo Wyłącz komputer.
+Zatwierdź przyciskiem Uruchom. Uśpienie/wyłączenie wymaga dodatkowego potwierdzenia
+z domyślną odpowiedzią Nie. Przed akcją dodatek zatrzymuje audio i zapisuje miejsce.
+W chwili wykonywania uśpienia lub wyłączenia nie wypowiada komunikatu.
+Samo zatrzymanie książki jest oznajmiane przy włączonych komunikatach automatycznych; błędy nie są wyciszane.
+Błąd zapisu blokuje uśpienie/wyłączenie.
+Wyłącznik ma pierwszeństwo przed automatycznym uruchomieniem następnego odcinka.
+Tryb „Po określonej liczbie odcinków” tymczasowo włącza przechodzenie,
+bez zmiany zapisanego ustawienia. Po wykonaniu lub anulowaniu wyłącznika
+wraca zwykłe zachowanie. Shift+K wyłączający przechodzenie anuluje również
+aktywny wyłącznik liczby odcinków; usłyszysz informację o anulowaniu.
+Wyłączniki minutowy i końca bieżącego odcinka nie włączają przechodzenia.
+Czas w minutach biegnie również podczas pauzy i po zamknięciu okna biblioteki.
+Ręczna zmiana odcinka/książki anuluje wyłącznik końca odcinka lub liczby odcinków.
+Przewijanie w obrębie odcinka go nie anuluje. Wyłącznik minutowy pozostaje aktywny
+przy zmianie odcinka. Restart NVDA anuluje każdy wyłącznik.
+Uśpienie i wyłączenie testowane są wyłącznie przez atrapy wywołań systemowych,
+bez faktycznego uśpienia/wyłączenia komputera podczas budowania paczki.
+
+DANE
+Nazwa i identyfikator dodatku: Czytelnia / czytelnia. Od wersji 0.1.12 również
+folder kodu i nazwy plików danych używają nazwy czytelnia. Pliki danych ze
+starszych wersji nie są automatycznie przenoszone ani usuwane.
+W katalogu konfiguracji NVDA, wewnątrz addons:
+  czytelnia_config.json — biblioteka, miejsca słuchania i zakładki;
+  czytelnia-ustawienia.json — przechodzenie do kolejnych części i komunikaty automatyczne;
+  czytelnia — zainstalowany kod dodatku z tools/ffplay.exe i tools/ffprobe.exe.
+Nagrania od wersji 0.1.16: %LOCALAPPDATA%\Czytelnia\biblioteka.
+Folder powstaje przy dodawaniu książki. Stara biblioteka nie jest automatycznie
+przenoszona ani usuwana. Przy ponownym imporcie usuń z listy stary wpis,
+jeśli wskazuje na nagrania, których nie ma w nowej lokalizacji.
+Archiwa źródłowe i foldery źródłowe pozostają nietknięte.
+Po dojściu do końca książki nic nie jest automatycznie usuwane.
+
+OGRANICZENIA PROTOTYPU
+Pauza zatrzymuje proces ffplay; wznowienie uruchamia go od zapamiętanego czasu.
+Przewijanie podczas grania odbywa się w tym samym procesie. Cel zmienia się
+o 5 sekund nagrania niezależnie od tempa; dekoder może zacząć nieco obok celu.
+Błąd lub brak potwierdzenia przewinięcia zatrzymuje odtwarzanie zamiast
+pozostawiać dźwięk w starym miejscu.
+Głośność zmienia się na żywo w filtrze ffplay, bez restartu nagrania i bez zmiany
+głośności NVDA czy Windows. Polecenia biegną wyłącznie lokalnie przez 127.0.0.1;
+nie są wysyłane do Internetu. Przy skoku filtr odczytuje bieżącą głośność
+z pomocniczego pliku poleceń. Plik nie zawiera nagrań ani danych biblioteki.
+Tempo nadal wymaga ponownego uruchomienia ffplay
+i może powodować krótką przerwę. Brak oddzielnej nawigacji po rozdziałach wewnątrz M4B;
+części odpowiadają plikom.
+Odczyt aktywnej karty Eksploratora przy niejednoznaczności odmawia zamiast
+zgadywać. Wtedy użyj przycisku Dodaj folder lub Dodaj archiwum.
+Działanie skrótu i komunikatów w prawdziwym NVDA wymaga próby użytkownika.
+Testy kontrolek wx i COM poza NVDA tego nie zastępują.
+
+DLA PROGRAMISTY
+Kod w addon/globalPlugins/czytelnia/.
+Testy Windows: py -X utf8 -m unittest discover -s tests -v
+Budowanie paczki: py -X utf8 build.py
+Budowanie niczego nie instaluje. Weryfikuje sumy wszystkich plików wewnątrz paczki.
+Raport budowania: build-report.json.
+Próby funkcjonalne i raporty: tools/ oraz tests/*-report.json.
+Próby tools/probe_player.py i tools/probe_library_book.py używają cichego audio.
+Próby tools/probe_explorer.py i tools/probe_plugin_runtime.py działają w osobnym
+Pythonie, bez instalacji dodatku i bez zmian konfiguracji NVDA.
+Testy dowiązań są pomijane w Windows, gdy system nie przyznaje prawa do ich
+utworzenia; pozostałe testy działają. Te same testy dowiązań wykonywane są w WSL.
+
+Paczka przeznaczona do lokalnego testowania. Przed publicznym udostępnieniem
+trzeba domknąć materiały licencyjne do dostarczonych binariów FFmpeg
+(opis: addon/THIRD-PARTY.txt).

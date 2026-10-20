@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Czytelnia — podręcznik użytkownika</title>
+<style>
+:root { color-scheme: light dark; --tlo: #ffffff; --tekst: #202124; }
+* { box-sizing: border-box; }
+body { max-width: 48rem; margin: auto; padding: 1.5rem; background: var(--tlo); color: var(--tekst); font: 1.1rem/1.6 system-ui, sans-serif; }
+h1 { font-size: 2rem; line-height: 1.25; }
+h2 { font-size: 1.4rem; line-height: 1.35; margin-top: 1.8rem; }
+li { margin-bottom: .35rem; }
+@media (prefers-color-scheme: dark) { :root { --tlo: #16181b; --tekst: #f1f3f5; } }
+@media print { :root { --tlo: #ffffff; --tekst: #000000; } body { max-width: none; padding: 0; font-size: 11pt; } h2 { break-after: avoid; } }
+</style>
+</head>
+<body>
+<main>
+<h1>Czytelnia</h1>
+<h2>Opis</h2>
+<p>Czytelnia to dodatek do NVDA, który umożliwia słuchanie audiobooków zapisanych na komputerze. Zapamiętuje miejsce słuchania i&nbsp;pozwala tworzyć zakładki, zmieniać tempo oraz ustawiać wyłącznik czasowy.</p>
+<h2>Skróty klawiaturowe</h2>
+<ul>
+<li><strong>NVDA+Shift+C</strong> otwiera bibliotekę.</li>
+<li><strong>NVDA+Shift+C naciśnięty dwukrotnie</strong> dodaje książkę z&nbsp;Eksploratora plików: zaznaczone archiwum albo zaznaczony lub otwarty folder z&nbsp;nagraniami.</li>
+</ul>
+<p>Poniższe skróty działają na liście książek:</p>
+<ul>
+<li><strong>Enter, Spacja lub Ctrl+P</strong> uruchamia zaznaczoną książkę od zapisanego miejsca. Dla już wczytanej książki wstrzymuje lub wznawia odtwarzanie.</li>
+<li><strong>Ctrl+strzałka w&nbsp;lewo lub prawo</strong> przewija nagranie o&nbsp;5&nbsp;sekund wstecz lub do przodu.</li>
+<li><strong>Alt+strzałka w&nbsp;lewo lub prawo</strong> przechodzi do poprzedniego lub następnego odcinka, zachowując pauzę albo odtwarzanie.</li>
+<li><strong>Shift+strzałka w&nbsp;górę lub dół</strong> zwiększa lub zmniejsza głośność podczas odtwarzania.</li>
+<li><strong>Ctrl+Shift+strzałka w&nbsp;górę lub dół</strong> zwiększa lub zmniejsza tempo podczas odtwarzania. Dostępne prędkości to 1×, 1,5× i&nbsp;2×.</li>
+<li>Głośność i&nbsp;tempo są wspólne dla wszystkich książek i&nbsp;zapamiętywane również po ponownym uruchomieniu NVDA. Przy przytrzymaniu klawiszy zapis następuje po ich puszczeniu.</li>
+<li><strong>Ctrl+I</strong> podaje czas do końca odcinka.</li>
+<li><strong>Ctrl+Shift+I</strong> podaje czas do końca książki.</li>
+<li><strong>Shift+K</strong> włącza lub wyłącza automatyczne przechodzenie do kolejnego odcinka.</li>
+<li><strong>Ctrl+Shift+K</strong> włącza lub wyłącza automatyczne komunikaty o&nbsp;odtwarzaniu.</li>
+<li><strong>Shift+T</strong> otwiera ustawienia wyłącznika czasowego. Gdy wyłącznik działa, podaje jego stan. Dwukrotne naciśnięcie anuluje wyłącznik.</li>
+<li><strong>Ctrl+D</strong> dodaje zakładkę w&nbsp;aktualnym miejscu słuchanej lub wstrzymanej książki.</li>
+<li><strong>Ctrl+B</strong> otwiera zakładki zaznaczonej książki.</li>
+<li><strong>Ctrl+Shift+B</strong> przywraca miejsce słuchania zaznaczonej książki sprzed przejścia do zakładek.</li>
+<li><strong>Ctrl+N</strong> otwiera zmianę numeracji odcinków zaznaczonej książki.</li>
+<li><strong>Klawisz menu lub Shift+F10</strong> otwiera menu kontekstowe zaznaczonej książki.</li>
+<li><strong>Delete</strong> usuwa zaznaczoną książkę po potwierdzeniu.</li>
+<li><strong>Escape</strong> zamyka bibliotekę, nie zatrzymując odtwarzania.</li>
+</ul>
+<p>Podręcznik otwiera przycisk <strong>Pomoc (F1)</strong> lub klawisz <strong>F1</strong> w&nbsp;oknie biblioteki. Jest też dostępny z&nbsp;menadżera dodatków NVDA.</p>
+<h2>Biblioteka</h2>
+<p>Aby dodać książkę, w&nbsp;Eksploratorze plików zaznacz jej archiwum ZIP, RAR lub 7z albo zaznacz lub otwórz wypakowany folder z&nbsp;nagraniami. Następnie naciśnij dwukrotnie <strong>NVDA+Shift+C</strong> i&nbsp;potwierdź dodanie. Możesz też skorzystać z&nbsp;przycisków <strong>Dodaj archiwum</strong> lub <strong>Dodaj folder</strong> w&nbsp;bibliotece.</p>
+<p>Z&nbsp;folderu kopiowane są tylko nagrania znajdujące się bezpośrednio w&nbsp;nim. Czytelnia nie wchodzi do podfolderów. Jeśli nagrania są dopiero głębiej, otwórz folder nadrzędny i&nbsp;zaznacz właściwy folder z&nbsp;nagraniami.</p>
+<p>Strzałki wybierają książkę, a&nbsp;Tab przechodzi między przyciskami. Samo zaznaczenie książki nie zmienia odtwarzania. Usunięcie książki kasuje jej kopię w&nbsp;bibliotece, postęp i&nbsp;zakładki, ale nie narusza oryginalnych plików.</p>
+<h2>Menu kontekstowe</h2>
+<p>Menu kontekstowe dotyczy książki zaznaczonej na liście. Zawiera polecenia <strong>Słuchaj</strong>, <strong>Zakładki</strong>, <strong>Wróć do słuchania</strong>, <strong>Przesunięcie numeracji odcinków</strong> i&nbsp;<strong>Usuń książkę</strong>. Otwiera się klawiszem menu, skrótem Shift+F10 lub prawym przyciskiem myszy.</p>
+<h2>Zakładki</h2>
+<p>Zakładki są dodatkową, opcjonalną funkcją. Dodatek sam zapamiętuje miejsce zatrzymania książki, więc nie trzeba tworzyć zakładki, aby później kontynuować słuchanie.</p>
+<p>Każda książka ma własne zakładki. W&nbsp;ich oknie Enter rozpoczyna odtwarzanie od wybranego miejsca, F2 zmienia nazwę, Delete usuwa zakładkę po potwierdzeniu, a&nbsp;Escape wraca do biblioteki.</p>
+<p>Pierwsze przejście do zakładki zapamiętuje dotychczasowe miejsce słuchania. Kolejne przejścia go nie nadpisują. Ctrl+Shift+B przywraca to miejsce i&nbsp;wznawia odtwarzanie. Skrót działa również w&nbsp;oknie zakładek.</p>
+<h2>Numeracja odcinków</h2>
+<p>W&nbsp;niektórych nagraniach lektor zapowiada każdy odcinek, podając jego numer. Jeśli książkę poprzedzają dodatkowe nagrania, numeracja w&nbsp;dodatku może różnić się od tej podawanej przez lektora. Aby ją dopasować, można ustawić bieżący odcinek jako pierwszy.</p>
+<p>Okno otwierane przez Ctrl+N pozwala zmienić numerację lub przywrócić domyślną. Wcześniejsze pliki otrzymują oznaczenie „Wstęp”. Zmiana nie wpływa na pliki ani ich kolejność.</p>
+<h2>Wyłącznik czasowy</h2>
+<p>Wyłącznik może zatrzymać książkę, uśpić lub wyłączyć komputer po zakończeniu bieżącego odcinka, po wybranej liczbie odcinków albo po wybranym czasie. Ustawienie zatwierdza przycisk <strong>Zapisz</strong>.</p>
+<p>Karol Olejnik</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,37 @@
+# Lokalne wyniki, ustawienia i dane użytkownika
+.test-work/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+.env
+.env.*
+*.log
+*.log.*
+*.nvda-addon
+*.building
+build-report.json
+czytelnia-ustawienia.json
+
+# Zewnętrzne pliki wykonywalne: lokalnie do budowania, nie do historii Git
+*.exe
+*.dll
+
+# Nagrania, książki i archiwa nie są kodem projektu
+*.wav
+*.mp3
+*.m4a
+*.m4b
+*.flac
+*.ogg
+*.opus
+*.zip
+*.rar
+*.7z
+
+# Ślady ręcznych prób
+tests/work*/
+tests/*-report.json

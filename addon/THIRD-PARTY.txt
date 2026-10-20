@@ -1,0 +1,29 @@
+Czytelnia — wersja lokalna do testów Karola.
+
+W paczce są niezmienione pliki ffplay.exe i ffprobe.exe dostarczone przez użytkownika.
+Oba identyfikują się jako FFmpeg 8.0-essentials_build-www.gyan.dev, z opcjami
+--enable-gpl --enable-version3 --enable-static. Obowiązuje GPL w wersji 3
+w odniesieniu do tej konfiguracji FFmpeg; pełny tekst obok: COPYING-GPLv3.txt.
+Informacja o autorach: FFmpeg developers, https://ffmpeg.org/.
+Dostawca kompilacji: https://www.gyan.dev/ffmpeg/builds/.
+Źródła FFmpeg 8.0: https://github.com/FFmpeg/FFmpeg/tree/n8.0.
+
+Nie są to własne kompilacje dodatku. Sam link do źródeł FFmpeg nie dokumentuje
+kompletu odpowiadających źródeł i instrukcji budowania wszystkich bibliotek
+zewnętrznych użytych przez dostawcę. Ta paczka powstała do lokalnych testów;
+przed publiczną dystrybucją trzeba przygotować komplet materiałów wymaganych
+przez licencje tej kompilacji albo zastąpić ją własną, udokumentowaną kompilacją.
+
+Do obsługi RAR i 7z dołączono niezmienione 7z.exe i 7z.dll z 7-Zip 26.03 x64
+(2026-09-03), autor Igor Pavlov: https://www.7-zip.org/.
+Pochodzenie: https://github.com/ip7z/7zip/releases/tag/26.03.
+Pełne warunki i informacje upstream: tools/7zip-docs/License.txt oraz readme.txt.
+Kod obejmuje LGPL-2.1-or-later, części BSD-3-Clause oraz kod z ograniczeniem
+unRAR (nie wolno używać go do odtwarzania własnego kompresora RAR).
+Źródła dokładnie tego wydania:
+https://github.com/ip7z/7zip/releases/download/26.03/7z2603-src.tar.xz
+Narzędzie działa jako osobny proces; systemowy 7-Zip nie jest wymagany ani zmieniany.
+Przed publiczną dystrybucją przygotuj także materiały wymagane licencjami 7-Zipa.
+
+Kod Pythona tego dodatku: Karol Olejnik, GPL-3.0-or-later.
+Brak gwarancji; szczegóły w COPYING-GPLv3.txt.
