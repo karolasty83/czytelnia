@@ -33,6 +33,21 @@ SEEK_TIMEOUT = 3.0
 _AUDIO_CLOCK = re.compile(r"^\s*(-?\d+(?:\.\d+)?)\s+M-A:\s")
 
 
+def sdl_output_name(name):
+    """SDL2 compares UTF-8 names but its Windows getenv reads ANSI bytes.
+
+    Encode only this child's environment value, never the displayed/saved name.
+    Refuse a non-round-trippable code page rather than select a different device.
+    """
+    if os.name != 'nt' or not name:
+        return name
+    raw = name.encode('utf-8')
+    encoded = raw.decode('mbcs')
+    if encoded.encode('mbcs') != raw:
+        raise ValueError('Nie można przekazać nazwy urządzenia wyjściowego do odtwarzacza.')
+    return encoded
+
+
 def parse_clock(line):
     """Return ffplay's raw audio clock, never the A/V difference or NaN.
 
@@ -95,6 +110,9 @@ class Player:
     Volume changes use the running process's azmq filter, without pausing or
     resetting its clock. Speed changes relaunch at the last source position.
     Paused playback stays paused. load preserves both settings across parts.
+    output_device is a read-only exact SDL name (default '' for system default),
+    changed with set_output_device. Changes relaunch like speed and survive load;
+    the audio device environment is isolated to the ffplay child.
     diagnostic(stage, detail), if supplied, receives error-only technical context
     separately from on_event's spoken detail. Callback exceptions are ignored.
     """
@@ -107,6 +125,7 @@ class Player:
         self._diagnostic_callback = diagnostic
         self._volume = self._validate_volume(volume)
         self._speed = 1.0
+        self._output_device = ''
         self._lock = threading.RLock()
         self._operations = threading.RLock()
         self._path = None
@@ -203,6 +222,18 @@ class Player:
             raise ValueError("Speed must be from 0.5 to 2.0 in steps of 0.5")
         self._set_playback_setting('_speed', float(value))
 
+    @property
+    def output_device(self):
+        with self._lock:
+            return self._output_device
+
+    def set_output_device(self, name):
+        """Select an SDL device by exact name; empty means system default."""
+        if not isinstance(name, str) or len(name) > 1024 or '\0' in name:
+            raise ValueError("Output device must be a string up to 1024 characters without NUL")
+        sdl_output_name(name)  # Validate the child encoding before pausing/changing state.
+        self._set_playback_setting('_output_device', name)
+
     def _set_playback_setting(self, name, value):
         with self._operations:
             self._ensure_open()
@@ -280,16 +311,24 @@ class Player:
                     else:
                         args.append("-nodisp")
                     args.extend(["-af", graph, "-protocol_whitelist", "file,pipe", self._path])
+                    env = os.environ.copy()
+                    if self._output_device:
+                        env['SDL_AUDIO_DEVICE_NAME'] = sdl_output_name(self._output_device)
+                    else:
+                        env.pop('SDL_AUDIO_DEVICE_NAME', None)
                     if self._use_native:
                         # 30000px private windows exceed common GPU texture limits.
-                        # Only this child gets SDL video defaults; retain real audio.
-                        env = dict(os.environ, SDL_VIDEODRIVER="windows",
-                                   SDL_RENDER_DRIVER="software")
+                        # SDL defaults apply only to this child.
+                        env.update(SDL_VIDEODRIVER="windows", SDL_RENDER_DRIVER="software")
+                        # CoreAudio friendly names must use the same SDL backend.
+                        # Keep the explicit silent driver used by hardware-free tests.
+                        if env.get('SDL_AUDIODRIVER') != 'dummy':
+                            env['SDL_AUDIODRIVER'] = 'wasapi'
                         process = self._native_factory(args, cwd=self._gain_directory.name, env=env)
                     else:
                         process = subprocess.Popen(
                             args, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                            stderr=subprocess.PIPE, shell=False,
+                            stderr=subprocess.PIPE, shell=False, env=env,
                             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
                 except OSError as error:
                     if control is not None:

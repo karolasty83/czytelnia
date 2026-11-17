@@ -10,6 +10,9 @@ class BuildTests(unittest.TestCase):
         self.assertTrue(target.exists(),'Brak skryptu budowania')
         spec=importlib.util.spec_from_file_location('build_test_module',target)
         self.module=importlib.util.module_from_spec(spec); spec.loader.exec_module(self.module)
+    def test_output_enumerator_is_packaged(self):
+        self.assertIn('globalPlugins/czytelnia/audio_outputs.py', self.module.SOURCES)
+
     def test_local_payload_includes_help_and_keeps_tools(self):
         names = {name for _, name in self.module.payload(ROOT)}
         for name in ('COPYING-GPLv3.txt', 'THIRD-PARTY.txt',

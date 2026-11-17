@@ -33,8 +33,9 @@ li { margin-bottom: .35rem; }
 <li><strong>Shift+strzałka w&nbsp;górę lub dół</strong> zwiększa lub zmniejsza głośność podczas odtwarzania.</li>
 <li><strong>Ctrl+Shift+strzałka w&nbsp;górę lub dół</strong> zwiększa lub zmniejsza tempo podczas odtwarzania. Dostępne prędkości to 1×, 1,5× i&nbsp;2×.</li>
 <li>Głośność i&nbsp;tempo są wspólne dla wszystkich książek i&nbsp;zapamiętywane również po ponownym uruchomieniu NVDA. Przy przytrzymaniu klawiszy zapis następuje po ich puszczeniu.</li>
-<li><strong>Ctrl+I</strong> podaje czas do końca odcinka.</li>
-<li><strong>Ctrl+Shift+I</strong> podaje czas do końca książki.</li>
+<li><strong>Ctrl+I</strong> podaje czas do końca odcinka z&nbsp;sekundami, np. „15 minut i&nbsp;44 sekundy”.</li>
+<li><strong>Ctrl+Shift+I</strong> podaje czas do końca książki, również z&nbsp;sekundami. Jednostki zerowe są pomijane.</li>
+<li><strong>Ctrl+W</strong> otwiera wybór wyjścia dźwięku książki.</li>
 <li><strong>Shift+K</strong> włącza lub wyłącza automatyczne przechodzenie do kolejnego odcinka.</li>
 <li><strong>Ctrl+Shift+K</strong> włącza lub wyłącza automatyczne komunikaty o&nbsp;odtwarzaniu.</li>
 <li><strong>Shift+T</strong> otwiera ustawienia wyłącznika czasowego. Gdy wyłącznik działa, podaje jego stan. Dwukrotne naciśnięcie anuluje wyłącznik.</li>
@@ -47,12 +48,17 @@ li { margin-bottom: .35rem; }
 <li><strong>Escape</strong> zamyka bibliotekę, nie zatrzymując odtwarzania.</li>
 </ul>
 <p>Podręcznik otwiera przycisk <strong>Pomoc (F1)</strong> lub klawisz <strong>F1</strong> w&nbsp;oknie biblioteki. Jest też dostępny z&nbsp;menadżera dodatków NVDA.</p>
+<h2>Wyjście dźwięku</h2>
+<p>W&nbsp;oknie biblioteki naciśnij <strong>Ctrl+W</strong>. Na liście „Urządzenie wyjściowe” wybierz strzałkami wyjście, na którym ma grać książka, i&nbsp;zatwierdź Enterem lub przyciskiem OK. Escape lub Anuluj zamyka okno bez zmiany. Samo poruszanie się po liście nie przełącza dźwięku.</p>
+<p>Pierwsza pozycja, <strong>Domyślne urządzenie systemowe</strong>, korzysta z&nbsp;domyślnego wyjścia Windows. Pozostałe pozycje to dostępne urządzenia odtwarzające dźwięk. Zmiana dotyczy tylko książki, nie mowy NVDA ani innych programów. Podczas przełączania może wystąpić krótka przerwa; miejsce, głośność i&nbsp;tempo pozostają zachowane. Książka wstrzymana pozostaje w&nbsp;pauzie.</p>
+<p>Wybór jest wspólny dla wszystkich książek i&nbsp;zapisywany w&nbsp;dotychczasowym pliku <strong>czytelnia-ustawienia.json</strong>. Nowy JSON, brak pliku lub brak pola wyjścia w&nbsp;starszych ustawieniach oznacza zawsze domyślne urządzenie systemowe. Jeśli zapisane urządzenie jest niedostępne przy uruchomieniu, Czytelnia informuje o&nbsp;tym i&nbsp;korzysta z&nbsp;domyślnego wyjścia; zapisany wybór pozostaje zachowany.</p>
 <h2>Biblioteka</h2>
 <p>Aby dodać książkę, w&nbsp;Eksploratorze plików zaznacz jej archiwum ZIP, RAR lub 7z albo zaznacz lub otwórz wypakowany folder z&nbsp;nagraniami. Następnie naciśnij dwukrotnie <strong>NVDA+Shift+C</strong> i&nbsp;potwierdź dodanie. Możesz też skorzystać z&nbsp;przycisków <strong>Dodaj archiwum</strong> lub <strong>Dodaj folder</strong> w&nbsp;bibliotece.</p>
 <p>Z&nbsp;folderu kopiowane są tylko nagrania znajdujące się bezpośrednio w&nbsp;nim. Czytelnia nie wchodzi do podfolderów. Jeśli nagrania są dopiero głębiej, otwórz folder nadrzędny i&nbsp;zaznacz właściwy folder z&nbsp;nagraniami.</p>
 <p>Strzałki wybierają książkę, a&nbsp;Tab przechodzi między przyciskami. Samo zaznaczenie książki nie zmienia odtwarzania. Usunięcie książki kasuje jej kopię w&nbsp;bibliotece, postęp i&nbsp;zakładki, ale nie narusza oryginalnych plików.</p>
 <h2>Menu kontekstowe</h2>
-<p>Menu kontekstowe dotyczy książki zaznaczonej na liście. Zawiera polecenia <strong>Słuchaj</strong>, <strong>Zakładki</strong>, <strong>Wróć do słuchania</strong>, <strong>Przesunięcie numeracji odcinków</strong> i&nbsp;<strong>Usuń książkę</strong>. Otwiera się klawiszem menu, skrótem Shift+F10 lub prawym przyciskiem myszy.</p>
+<p>Menu kontekstowe dotyczy książki zaznaczonej na liście. Zawiera polecenia <strong>Słuchaj</strong>, <strong>Zakładki</strong>, <strong>Wróć do słuchania</strong>, <strong>Przesunięcie numeracji odcinków</strong>, dostępne przesunięcia książki oraz <strong>Usuń książkę</strong>. Otwiera się klawiszem menu, skrótem Shift+F10 lub prawym przyciskiem myszy.</p>
+<p><strong>Przesuń w&nbsp;górę</strong> i&nbsp;<strong>Przesuń w&nbsp;dół</strong> zmieniają kolejność książek. W&nbsp;menu pojawiają się tylko dostępne kierunki: pierwszej książki nie przesuniesz wyżej, a&nbsp;ostatniej niżej. Po przesunięciu książka pozostaje zaznaczona. Kolejność jest zapamiętywana po ponownym uruchomieniu. Przesuwanie nie zmienia odtwarzania, postępu ani zakładek. Nie ma dodatkowych skrótów ani komunikatów na granicach listy.</p>
 <h2>Zakładki</h2>
 <p>Zakładki są dodatkową, opcjonalną funkcją. Dodatek sam zapamiętuje miejsce zatrzymania książki, więc nie trzeba tworzyć zakładki, aby później kontynuować słuchanie.</p>
 <p>Każda książka ma własne zakładki. W&nbsp;ich oknie Enter rozpoczyna odtwarzanie od wybranego miejsca, F2 zmienia nazwę, Delete usuwa zakładkę po potwierdzeniu, a&nbsp;Escape wraca do biblioteki.</p>

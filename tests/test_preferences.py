@@ -25,6 +25,87 @@ class PreferencesTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.path = self.root / "czytelnia-ustawienia.json"
 
+    def test_output_defaults_missing_and_legacy_without_writes(self):
+        preferences = self.module.Preferences(self.path)
+        self.assertEqual(getattr(preferences, "output_device", None), "")
+        self.assertFalse(self.path.exists())
+        original = b'{"version":1,"auto_next":false,"volume":37,"speed":1.5}\n'
+        self.path.write_bytes(original)
+        preferences = self.module.Preferences(self.path)
+        self.assertEqual(preferences.output_device, "")
+        self.assertEqual(self.path.read_bytes(), original)
+
+    def test_output_round_trip_preserves_other_fields_and_resets_to_default(self):
+        preferences = self.module.Preferences(self.path)
+        self.assertTrue(callable(getattr(preferences, "set_output_device", None)))
+        preferences.set_auto_next(False)
+        preferences.set_automatic_messages(False)
+        preferences.set_volume(37)
+        preferences.set_speed(1.5)
+        for name in ("USB Speakers (SDL)", "Słuchawki 🎧", "x" * 1024, ""):
+            with self.subTest(name=name):
+                preferences.set_output_device(name)
+                loaded = self.module.Preferences(self.path)
+                self.assertEqual(loaded.output_device, name)
+                self.assertEqual(preferences.output_device, name)
+                self.assertEqual(json.loads(self.path.read_text()), {
+                    "version": 1, "auto_next": False, "automatic_messages": False,
+                    "volume": 37, "speed": 1.5, "output_device": name})
+
+    def test_output_setter_rejects_invalid_values_without_disk_or_cache_changes(self):
+        preferences = self.module.Preferences(self.path)
+        preferences.set_output_device("Speakers")
+        original = self.path.read_bytes()
+        for value in (None, True, 1, 1.5, [], {}, b"Speakers", "bad\x00name", "x" * 1025):
+            with self.subTest(value=value):
+                with self.assertRaises((TypeError, ValueError)):
+                    preferences.set_output_device(value)
+                self.assertEqual(preferences.output_device, "Speakers")
+                self.assertEqual(self.path.read_bytes(), original)
+
+    def test_output_invalid_documents_fail_without_reset_or_overwrite(self):
+        preferences = self.module.Preferences(self.path)
+        for value in (None, True, 1, 1.5, [], {}, "bad\x00name", "x" * 1025):
+            with self.subTest(value=value):
+                original = json.dumps({"version": 1, "auto_next": True,
+                                       "output_device": value}).encode()
+                self.path.write_bytes(original)
+                with self.assertRaises(self.module.PreferencesError):
+                    self.module.Preferences(self.path)
+                for field, valid in (("auto_next", False), ("automatic_messages", False),
+                                     ("volume", 37), ("speed", 1.5),
+                                     ("output_device", "Speakers")):
+                    with self.assertRaises(self.module.PreferencesError):
+                        getattr(preferences, "set_" + field)(valid)
+                    self.assertEqual(preferences.output_device, "")
+                    self.assertEqual(self.path.read_bytes(), original)
+
+    def test_output_deleted_document_cannot_resurrect_cached_selection(self):
+        for field, value in (("auto_next", False), ("automatic_messages", False),
+                             ("volume", 37), ("speed", 1.5), ("output_device", "")):
+            with self.subTest(field=field):
+                preferences = self.module.Preferences(self.path)
+                preferences.set_output_device("Old Speakers")
+                self.path.unlink()
+                self.assertEqual(self.module.Preferences(self.path).output_device, "")
+                self.assertFalse(self.path.exists())
+                getattr(preferences, "set_" + field)(value)
+                self.assertEqual(preferences.output_device, "")
+                self.assertEqual(json.loads(self.path.read_text())["output_device"], "")
+
+    def test_output_failed_save_preserves_cached_selection(self):
+        preferences = self.module.Preferences(self.path)
+        preferences.set_output_device("Speakers")
+        original = self.path.read_bytes()
+        for operation in ("replace", "fsync"):
+            with self.subTest(operation=operation):
+                with mock.patch.object(self.module.os, operation, side_effect=OSError("disk error")):
+                    with self.assertRaises(OSError):
+                        preferences.set_output_device("")
+                self.assertEqual(preferences.output_device, "Speakers")
+                self.assertEqual(self.path.read_bytes(), original)
+                self.assertEqual(set(self.root.iterdir()), {self.path})
+
     def test_playback_defaults_and_optional_fields_load_without_writes(self):
         preferences = self.module.Preferences(self.path)
         self.assertEqual((preferences.volume, preferences.speed), (100, 1.0))
@@ -55,16 +136,18 @@ class PreferencesTests(unittest.TestCase):
                     self.assertEqual((loaded.volume, loaded.speed), (volume, speed))
                     self.assertEqual(json.loads(self.path.read_text()), {
                         "version": 1, "auto_next": False, "automatic_messages": False,
-                        "volume": volume, "speed": float(speed)})
+                        "volume": volume, "speed": float(speed), "output_device": ""})
 
     def test_every_setter_migrates_legacy_even_when_value_unchanged(self):
         for legacy in ({"version": 1, "auto_next": False},
                        {"version": 1, "auto_next": False, "automatic_messages": False},
                        {"version": 1, "auto_next": False, "volume": 37},
                        {"version": 1, "auto_next": False, "speed": 1.5},
-                       {"version": 1, "auto_next": False, "volume": 37, "speed": 1.5}):
+                       {"version": 1, "auto_next": False, "volume": 37, "speed": 1.5},
+                       {"version": 1, "auto_next": False, "automatic_messages": False,
+                        "volume": 37, "speed": 1.5}):
             for field, value in (("auto_next", False), ("automatic_messages", False),
-                                 ("volume", 100), ("speed", 1.0)):
+                                 ("volume", 100), ("speed", 1.0), ("output_device", "")):
                 with self.subTest(legacy=legacy, field=field):
                     self.path.write_text(json.dumps(legacy))
                     preferences = self.module.Preferences(self.path)
@@ -72,7 +155,7 @@ class PreferencesTests(unittest.TestCase):
                     expected = {"version": 1, "auto_next": False,
                                 "automatic_messages": legacy.get("automatic_messages", True),
                                 "volume": legacy.get("volume", 100),
-                                "speed": legacy.get("speed", 1.0), field: value}
+                                "speed": legacy.get("speed", 1.0), "output_device": "", field: value}
                     self.assertEqual(json.loads(self.path.read_text()), expected)
 
     def test_playback_setters_reject_invalid_values_without_changes(self):
@@ -92,7 +175,8 @@ class PreferencesTests(unittest.TestCase):
                     self.assertEqual(self.path.read_bytes(), original)
 
     def test_every_setter_preserves_latest_disk_fields_for_stale_instances(self):
-        changes = {"auto_next": False, "automatic_messages": False, "volume": 37, "speed": 1.5}
+        changes = {"auto_next": False, "automatic_messages": False, "volume": 37, "speed": 1.5,
+                   "output_device": "USB Speakers"}
         for field, value in changes.items():
             with self.subTest(field=field):
                 self.path.unlink(missing_ok=True)
@@ -106,7 +190,8 @@ class PreferencesTests(unittest.TestCase):
                 self.assertEqual({name: getattr(stale, name) for name in changes}, changes)
 
     def test_playback_failed_save_rolls_back_all_cached_fields(self):
-        for field, value in (("volume", 37), ("speed", 1.5)):
+        for field, value in (("auto_next", True), ("automatic_messages", True),
+                             ("volume", 37), ("speed", 1.5), ("output_device", "New Speakers")):
             for operation in ("replace", "fsync"):
                 with self.subTest(field=field, operation=operation):
                     self.path.unlink(missing_ok=True)
@@ -116,17 +201,20 @@ class PreferencesTests(unittest.TestCase):
                     writer.set_automatic_messages(False)
                     writer.set_volume(20)
                     writer.set_speed(2.0)
+                    writer.set_output_device("Other Speakers")
                     original = self.path.read_bytes()
                     with mock.patch.object(self.module.os, operation, side_effect=OSError("disk error")):
                         with self.assertRaises(OSError):
                             getattr(stale, "set_" + field)(value)
                     self.assertEqual((stale.auto_next, stale.automatic_messages,
-                                      stale.volume, stale.speed), (True, True, 100, 1.0))
+                                      stale.volume, stale.speed, stale.output_device),
+                                     (True, True, 100, 1.0, ""))
                     self.assertEqual(self.path.read_bytes(), original)
                     self.assertEqual(set(self.root.iterdir()), {self.path})
 
     def test_unchanged_complete_document_does_not_write_and_refreshes_cache(self):
-        values = {"auto_next": False, "automatic_messages": False, "volume": 37, "speed": 1.5}
+        values = {"auto_next": False, "automatic_messages": False, "volume": 37, "speed": 1.5,
+                  "output_device": "USB Speakers"}
         for field, value in values.items():
             with self.subTest(field=field):
                 self.path.unlink(missing_ok=True)
@@ -140,8 +228,10 @@ class PreferencesTests(unittest.TestCase):
                 self.assertEqual({name: getattr(stale, name) for name in values}, values)
 
     def test_setter_compares_latest_disk_value_not_cached_value(self):
-        defaults = {"auto_next": True, "automatic_messages": True, "volume": 100, "speed": 1.0}
-        changed = {"auto_next": False, "automatic_messages": False, "volume": 37, "speed": 1.5}
+        defaults = {"auto_next": True, "automatic_messages": True, "volume": 100, "speed": 1.0,
+                    "output_device": ""}
+        changed = {"auto_next": False, "automatic_messages": False, "volume": 37, "speed": 1.5,
+                   "output_device": "Speakers"}
         for field, value in defaults.items():
             with self.subTest(field=field):
                 self.path.unlink(missing_ok=True)
@@ -153,16 +243,22 @@ class PreferencesTests(unittest.TestCase):
 
     def test_default_setter_creates_complete_missing_file(self):
         for field, value in (("auto_next", True), ("automatic_messages", True),
-                             ("volume", 100), ("speed", 1.0)):
+                             ("volume", 100), ("speed", 1.0), ("output_device", "")):
             with self.subTest(field=field):
                 self.path.unlink(missing_ok=True)
                 preferences = self.module.Preferences(self.path)
                 getattr(preferences, "set_" + field)(value)
                 self.assertEqual(json.loads(self.path.read_text()), {
                     "version": 1, "auto_next": True, "automatic_messages": True,
-                    "volume": 100, "speed": 1.0})
+                    "volume": 100, "speed": 1.0, "output_device": ""})
 
     def test_concurrent_setters_serialize_read_modify_write_and_cache(self):
+        self._assert_concurrent_setters("volume", 37)
+
+    def test_output_setter_shares_read_save_cache_lock(self):
+        self._assert_concurrent_setters("output_device", "Speakers")
+
+    def _assert_concurrent_setters(self, field, value):
         preferences = self.module.Preferences(self.path)
         preferences.set_auto_next(True)
         first_read = threading.Event()
@@ -187,7 +283,7 @@ class PreferencesTests(unittest.TestCase):
 
         with mock.patch.object(preferences, "_read", side_effect=controlled_read):
             with ThreadPoolExecutor(max_workers=2) as executor:
-                first = executor.submit(preferences.set_volume, 37)
+                first = executor.submit(getattr(preferences, "set_" + field), value)
                 try:
                     self.assertTrue(first_read.wait(5), "first setter did not read")
                     second = executor.submit(second_setter)
@@ -197,10 +293,11 @@ class PreferencesTests(unittest.TestCase):
                     release_first.set()
                 first.result(timeout=5)
                 second.result(timeout=5)
-        self.assertEqual(json.loads(self.path.read_text()), {
+        expected = {
             "version": 1, "auto_next": False, "automatic_messages": True,
-            "volume": 37, "speed": 1.0})
-        self.assertEqual((preferences.auto_next, preferences.volume), (False, 37))
+            "volume": 100, "speed": 1.0, "output_device": "", field: value}
+        self.assertEqual(json.loads(self.path.read_text()), expected)
+        self.assertEqual((preferences.auto_next, getattr(preferences, field)), (False, value))
 
     def test_invalid_playback_documents_are_not_reset(self):
         preferences = self.module.Preferences(self.path)
@@ -250,7 +347,7 @@ class PreferencesTests(unittest.TestCase):
         self.assertEqual(Path(destination), self.path)
         self.assertEqual(json.loads(self.path.read_text()),
                          {"version": 1, "auto_next": False, "automatic_messages": True,
-                          "volume": 100, "speed": 1.0})
+                          "volume": 100, "speed": 1.0, "output_device": ""})
         self.assertIs(preferences.auto_next, False)
         self.assertIs(self.module.Preferences(self.path).auto_next, False)
         for value in (0, 1, None, "false", [], {}):
@@ -266,7 +363,7 @@ class PreferencesTests(unittest.TestCase):
         preferences.set_automatic_messages(False)
         self.assertEqual(json.loads(self.path.read_text()),
                          {"version": 1, "auto_next": False, "automatic_messages": False,
-                          "volume": 100, "speed": 1.0})
+                          "volume": 100, "speed": 1.0, "output_device": ""})
         self.assertIs(preferences.automatic_messages, False)
         loaded = self.module.Preferences(self.path)
         self.assertIs(loaded.automatic_messages, False)
@@ -274,7 +371,7 @@ class PreferencesTests(unittest.TestCase):
         loaded.set_auto_next(True)
         self.assertEqual(json.loads(self.path.read_text()),
                          {"version": 1, "auto_next": True, "automatic_messages": False,
-                          "volume": 100, "speed": 1.0})
+                          "volume": 100, "speed": 1.0, "output_device": ""})
         loaded.set_automatic_messages(True)
         self.assertIs(self.module.Preferences(self.path).automatic_messages, True)
         for value in (0, 1, None, "false", [], {}):
@@ -293,7 +390,7 @@ class PreferencesTests(unittest.TestCase):
                 getattr(second, "set_" + second_field)(False)
                 self.assertEqual(json.loads(self.path.read_text()),
                                  {"version": 1, "auto_next": False, "automatic_messages": False,
-                                  "volume": 100, "speed": 1.0})
+                                  "volume": 100, "speed": 1.0, "output_device": ""})
                 self.assertIs(second.auto_next, False)
                 self.assertIs(second.automatic_messages, False)
 

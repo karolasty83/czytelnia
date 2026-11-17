@@ -634,7 +634,7 @@ class Controller:
         total = sum(durations)
         position = max(0, min(durations[self.track_index], self.player.position))
         elapsed = sum(durations[:self.track_index]) + position
-        return format_time(max(0, total - elapsed) / self.player.speed) + ' do końca książki.'
+        return format_time(max(0, total - elapsed) / self.player.speed, include_seconds=True) + ' do końca książki.'
 
     def book_status(self):
         """Synchronous standalone API; the plugin splits these stages across workers."""
@@ -655,7 +655,7 @@ class Controller:
                 return 'Koniec wstępu.'
             return 'Koniec odcinka.'
         remaining = max(0, duration - elapsed)
-        return format_time(remaining / self.player.speed) + ' do końca odcinka.'
+        return format_time(remaining / self.player.speed, include_seconds=True) + ' do końca odcinka.'
 
     def save(self):
         if self.book_id is not None:

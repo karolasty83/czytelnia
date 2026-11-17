@@ -36,7 +36,7 @@ class BookStatusTests(unittest.TestCase):
         with patch.object(self.c.player, 'load', side_effect=AssertionError('status must not load')), \
              patch.object(self.c.player, 'pause', side_effect=AssertionError('status must not pause')), \
              patch.object(self.lib, '_write', side_effect=AssertionError('status must not write')):
-            self.assertEqual(self.c.book_status(), '4 minuty do końca książki.')
+            self.assertEqual(self.c.book_status(), '4 minuty i 30 sekund do końca książki.')
             self.c.player.position = 0
             self.assertEqual(self.c.book_status(), '5 minut do końca książki.')
         self.probe.assert_not_called()
@@ -48,7 +48,7 @@ class BookStatusTests(unittest.TestCase):
         before = self.lib.json_path.read_bytes()
         snapshot = self.c.book_status_snapshot()
         results = self.c.probe_book_status(snapshot, lambda: False)
-        for speed, expected in ((1.0, '4 minuty'), (1.5, '3 minuty'), (2.0, '2 minuty')):
+        for speed, expected in ((1.0, '4 minuty i 30 sekund'), (1.5, '3 minuty'), (2.0, '2 minuty i 15 sekund')):
             with self.subTest(speed=speed):
                 self.c.player.speed = speed
                 self.assertEqual(self.c.complete_book_status(snapshot, results),
@@ -58,7 +58,7 @@ class BookStatusTests(unittest.TestCase):
         self.c.player.position = 90
         self.c.player.pause()
         self.assertEqual(self.c.complete_book_status(snapshot, results),
-                         '1 minuta do końca książki.')
+                         '1 minuta i 45 sekund do końca książki.')
         self.probe.assert_not_called()
         stored = self.lib.get_book(self.book['id'])
         self.assertEqual(stored['position'], 30)

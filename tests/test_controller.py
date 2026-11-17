@@ -969,7 +969,7 @@ class ControllerTests(unittest.TestCase):
     def test_status_divides_source_remaining_by_current_speed_before_formatting(self):
         self.c.start('abc', index=1)
         self.c.player.position = 30
-        for speed, expected in ((1.0, '1 minuta'), (1.5, '1 minuta'),
+        for speed, expected in ((1.0, '1 minuta i 30 sekund'), (1.5, '1 minuta'),
                                 (2.0, '45 sekund')):
             with self.subTest(speed=speed):
                 self.c.player.speed = speed
@@ -988,7 +988,7 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(self.c.status(), 'Nie wybrano książki.')
         self.c.start('abc')
         self.c.player.position = 30
-        expected = '1 minuta do końca odcinka.'
+        expected = '1 minuta i 30 sekund do końca odcinka.'
         self.assertEqual(self.c.status(), expected)
         self.c.toggle()
         self.assertEqual(self.c.status(), expected)

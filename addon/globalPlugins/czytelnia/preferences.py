@@ -22,7 +22,7 @@ class Preferences:
         self.path = Path(path).absolute()
         self._lock = threading.RLock()
         (self._auto_next, self._automatic_messages,
-         self._volume, self._speed), _ = self._read()
+         self._volume, self._speed, self._output_device), _ = self._read()
 
     def _check_path(self):
         # Do not resolve(): that would hide destination/ancestor symlinks.
@@ -44,24 +44,32 @@ class Preferences:
         try:
             data = json.loads(self.path.read_text(encoding="utf-8"))
         except FileNotFoundError:
-            return (True, True, 100, 1.0), False
+            return (True, True, 100, 1.0, ""), False
         except (ValueError, UnicodeError) as error:
             raise PreferencesError(f"Uszkodzony plik ustawień: {self.path}") from error
         if (type(data) is not dict
                 or not {"version", "auto_next"} <= set(data)
-                or not set(data) <= {"version", "auto_next", "automatic_messages", "volume", "speed"}
+                or not set(data) <= {"version", "auto_next", "automatic_messages", "volume", "speed", "output_device"}
                 or type(data["version"]) is not int or data["version"] != 1
                 or type(data["auto_next"]) is not bool
                 or type(data.get("automatic_messages", True)) is not bool
                 or type(data.get("volume", 100)) is not int
                 or not 0 <= data.get("volume", 100) <= 100
                 or type(data.get("speed", 1.0)) not in (int, float)
-                or data.get("speed", 1.0) not in (1.0, 1.5, 2.0)):
+                or data.get("speed", 1.0) not in (1.0, 1.5, 2.0)
+                or type(data.get("output_device", "")) is not str
+                or "\x00" in data.get("output_device", "")
+                or len(data.get("output_device", "")) > 1024):
             raise PreferencesError(f"Nieprawidłowy format ustawień: {self.path}")
         values = (data["auto_next"], data.get("automatic_messages", True),
-                  data.get("volume", 100), float(data.get("speed", 1.0)))
-        complete = {"automatic_messages", "volume", "speed"} <= set(data)
+                  data.get("volume", 100), float(data.get("speed", 1.0)),
+                  data.get("output_device", ""))
+        complete = {"automatic_messages", "volume", "speed", "output_device"} <= set(data)
         return values, complete
+
+    @property
+    def output_device(self):
+        return self._output_device
 
     @property
     def volume(self):
@@ -78,6 +86,13 @@ class Preferences:
     @property
     def auto_next(self):
         return self._auto_next
+
+    def set_output_device(self, value):
+        if type(value) is not str:
+            raise TypeError("output_device must be a str")
+        if "\x00" in value or len(value) > 1024:
+            raise ValueError("output_device must have no NUL and at most 1024 characters")
+        self._set("output_device", value)
 
     def set_auto_next(self, value):
         self._set("auto_next", value)
@@ -105,10 +120,10 @@ class Preferences:
         # UI and playback worker setters share the entire read/save/cache lock.
         with self._lock:
             # Preserve another instance's most recent other fields.
-            (auto_next, automatic_messages, volume, speed), complete = self._read()
+            (auto_next, automatic_messages, volume, speed, output_device), complete = self._read()
             data = {"version": 1, "auto_next": auto_next,
                     "automatic_messages": automatic_messages,
-                    "volume": volume, "speed": speed}
+                    "volume": volume, "speed": speed, "output_device": output_device}
             if not complete or data[field] != value:
                 data[field] = value
                 self._save(data)
@@ -117,6 +132,7 @@ class Preferences:
             self._automatic_messages = data["automatic_messages"]
             self._volume = data["volume"]
             self._speed = data["speed"]
+            self._output_device = data["output_device"]
 
     def _save(self, data):
         temporary = None

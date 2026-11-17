@@ -32,9 +32,12 @@ class LibraryMenuTests(unittest.TestCase):
                 self.host.reset_mock()
                 def popup(menu):
                     items = menu.GetMenuItems()
-                    self.assertEqual([i.GetItemLabel() for i in items], labels)
+                    move_label = 'Przesuń w &dół' if mouse else 'Przesuń w &górę'
+                    expected_labels = labels[:-1] + [move_label] + labels[-1:]
+                    self.assertEqual([i.GetItemLabel() for i in items], expected_labels)
                     window.bookList.SetSelection(1 if mouse else 0)
-                    menu.ProcessEvent(wx.CommandEvent(wx.wxEVT_MENU, items[n].GetId()))
+                    selected = items[expected_labels.index(labels[n])]
+                    menu.ProcessEvent(wx.CommandEvent(wx.wxEVT_MENU, selected.GetId()))
                 with patch.object(window.bookList, 'PopupMenu', side_effect=popup):
                     event = wx.ContextMenuEvent(wx.wxEVT_CONTEXT_MENU)
                     event.SetPosition(window.bookList.ClientToScreen(wx.Point(5, 5)) if mouse else wx.DefaultPosition)

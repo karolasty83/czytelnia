@@ -20,6 +20,7 @@ import wx
 from .error_log import ErrorLog
 from .library import Library, FolderSelectionRequired, scan_candidates
 from .player import Player, probe_duration
+from .audio_outputs import list_output_devices
 from .controller import Controller
 from .dialogs import LibraryDialog, CandidateDialog, SleepTimerDialog, ImportProgressDialog
 from .preferences import Preferences
@@ -58,6 +59,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
         self._power_lock = threading.RLock()
         self._dialog = None
         self._numbering_request = None
+        self._output_request = None
+        self._output_dialog = None
+        self._output_parent_to_destroy = None
         self._numbering_dialog = None
         self._numbering_parent_to_destroy = None
         self._bookmark_request = None
@@ -115,13 +119,103 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 sevenzip_path=binaries / '7z.exe')
             self._controller = Controller(
                 library,
-                lambda callback: Player(binaries / 'ffplay.exe', binaries / 'ffprobe.exe',
-                                        on_event=callback, diagnostic=self._write_diagnostic),
+                lambda callback: self._make_player(binaries, callback),
                 self._dispatch_event, self._say, transition=self._transition,
                 auto_next=self._get_saved_auto_next, sleep_timer=SleepTimer(),
                 power=self._perform_power, cancelled=lambda: self._closed,
                 notify_auto=self._say_auto, preferences=self._preferences)
         return self._controller
+
+    def _make_player(self, binaries, callback):
+        player = Player(binaries / 'ffplay.exe', binaries / 'ffprobe.exe',
+                        on_event=callback, diagnostic=self._write_diagnostic)
+        selected = self._preferences.output_device if self._preferences is not None else ''
+        if selected:
+            try:
+                available = selected in list_output_devices()
+            except OSError:
+                available = False
+            if not available:
+                selected = ''
+                self._say('Zapisane wyjście dźwięku jest niedostępne. Używam domyślnego urządzenia systemowego.')
+        player.set_output_device(selected)
+        return player
+
+    def show_output_devices(self):
+        if (self._closed or self._output_request is not None
+                or self._output_dialog is not None or not self._dialog):
+            return
+        token = self._output_request = object()
+        def failed():
+            if self._output_request is token:
+                self._output_request = None
+        if not self._run(lambda c: (list_output_devices(), c.player.output_device),
+                         lambda result: wx.CallAfter(self._open_output_devices, token, result),
+                         failure=failed):
+            failed()
+
+    def _open_output_devices(self, token, result):
+        if self._closed or self._output_request is not token:
+            return
+        self._output_request = None
+        parent = self._dialog
+        if not parent or parent.IsBeingDeleted() or self._busy:
+            return
+        devices, current = result
+        values = [''] + devices
+        dialog = self._output_dialog = wx.SingleChoiceDialog(
+            parent, 'Urządzenie wyjściowe:', 'Wyjście dźwięku',
+            ['Domyślne urządzenie systemowe'] + devices)
+        dialog.SetSelection(values.index(current) if current in values else 0)
+        selected = None
+        try:
+            if self._modal(dialog) == wx.ID_OK:
+                index = dialog.GetSelection()
+                if 0 <= index < len(values):
+                    selected = values[index]
+        finally:
+            self._output_dialog = None
+            dialog.Destroy()
+            pending, self._output_parent_to_destroy = self._output_parent_to_destroy, None
+            self._destroy_window(pending)
+            if not self._closed and parent is self._dialog and parent and not parent.IsBeingDeleted():
+                parent.bookList.SetFocus()
+        if selected is not None and not self._closed and parent is self._dialog:
+            self._run(lambda c: self._set_output_device(c, selected), self._say)
+
+    def _close_output_devices(self):
+        self._output_request = None
+        if self._output_dialog and self._output_dialog.IsModal():
+            self._output_dialog.EndModal(wx.ID_CANCEL)
+
+    def _set_output_device(self, controller, selected):
+        if self._preferences is None:
+            raise ValueError('Nie można zapisać ustawień. ' + str(self._preferences_error))
+        if selected and selected not in list_output_devices():
+            raise ValueError('Wybrane urządzenie wyjściowe jest niedostępne.')
+        player = controller.player
+        previous, was_playing = player.output_device, player.is_playing
+        changed = previous != selected
+        if changed:
+            player.pause()
+        try:
+            if changed:
+                player.set_output_device(selected)
+            self._preferences.set_output_device(selected)
+        except Exception:
+            if changed:
+                player.set_output_device(previous)
+            raise
+        finally:
+            # Disk I/O can overlap shutdown. Never resurrect playback after it,
+            # nor wrap an exhausted part back to its beginning.
+            if not self._closed and not controller.closed:
+                timer_fired = controller.check_timer()
+                if (changed and was_playing and not timer_fired
+                        and not self._closed and not controller.closed
+                        and player.position < player.duration):
+                    player.play()
+        return 'Wyjście dźwięku: ' + (selected or 'Domyślne urządzenie systemowe') + '.'
 
     def _write_diagnostic(self, stage, detail):
         # Lazy creation: successful playback never creates a log file.
@@ -689,13 +783,16 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             self._say('Biblioteka jest pusta. Wybierz Dodaj archiwum lub Dodaj folder.')
 
     def dialog_closed(self, dialog):
+        self._close_output_devices()
         self._close_numbering()
         self._close_bookmarks()
         self.cancel_sleep_timer_gesture()
         self.end_adjustment()
         if dialog is self._dialog:
             self._dialog = None
-        if self._numbering_dialog:
+        if self._output_dialog:
+            self._output_parent_to_destroy = dialog
+        elif self._numbering_dialog:
             self._numbering_parent_to_destroy = dialog
         elif self._bookmark_dialog:
             self._bookmark_parent_to_destroy = dialog
@@ -1114,6 +1211,27 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
             dialog.refresh(rows, selected_id=selected_id)
             dialog.bookmarkList.SetFocus()
 
+    def move_book(self, book_id, direction):
+        parent = self._dialog
+        if not parent or self._closed:
+            return
+        def work(controller):
+            moved = controller.library.move_book(book_id, direction)
+            return controller.library.books(), moved
+        def done(result):
+            books, moved = result
+            if (not moved or parent is not self._dialog
+                    or not parent or parent.IsBeingDeleted()):
+                return
+            parent.refresh(books)
+            index = next((i for i, book in enumerate(books) if book['id'] == book_id), None)
+            if index is not None:
+                parent.bookList.SetSelection(index)
+                parent.bookList.SetFocus()
+                title, position, total = moved
+                self._deliver_message('{0}, pozycja {1} z {2}.'.format(title, position, total))
+        self._run(work, done)
+
     def start_book(self, book_id):
         self._run(lambda c: c.start(book_id), resume_adjustment=False)
 
@@ -1220,6 +1338,7 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 return
             self._closed = True
         self._cancel.set()
+        self._close_output_devices()
         self._close_numbering()
         self._close_bookmarks()
         if self._import_progress is not None:
@@ -1242,7 +1361,9 @@ class GlobalPlugin(globalPluginHandler.GlobalPlugin):
                 timer.Stop()
         if self._dialog:
             dialog, self._dialog = self._dialog, None
-            if self._numbering_dialog:
+            if self._output_dialog:
+                self._output_parent_to_destroy = dialog
+            elif self._numbering_dialog:
                 self._numbering_parent_to_destroy = dialog
             elif self._bookmark_dialog:
                 self._bookmark_parent_to_destroy = dialog

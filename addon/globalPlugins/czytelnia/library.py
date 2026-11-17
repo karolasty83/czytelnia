@@ -329,6 +329,23 @@ class Library:
         with self._lock:
             return deepcopy(self._books)
 
+    @_filesystem_errors
+    def move_book(self, book_id, direction):
+        """Persist only list order; book identities and playback data stay intact."""
+        if type(direction) is not int or direction not in (-1, 1):
+            raise ValueError('Nieprawidłowy kierunek przesunięcia książki.')
+        with self._lock:
+            book = self._book(book_id)
+            index = next(i for i, item in enumerate(self._books) if item['id'] == book_id)
+            target = index + direction
+            if not 0 <= target < len(self._books):
+                return None
+            updated = deepcopy(self._books)
+            updated[index], updated[target] = updated[target], updated[index]
+            self._write(updated)
+            self._books = updated
+            return book['title'], target + 1, len(updated)
+
     def _book(self, book_id):
         if not isinstance(book_id, str) or not re.fullmatch(r"[0-9a-f]{32}", book_id):
             raise LibraryError("Nieprawidłowy identyfikator książki.")

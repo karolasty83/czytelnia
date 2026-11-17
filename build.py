@@ -15,6 +15,7 @@ SOURCES = (
     'globalPlugins/czytelnia/sevenzip.py',
     'globalPlugins/czytelnia/error_log.py',
     'globalPlugins/czytelnia/player.py',
+    'globalPlugins/czytelnia/audio_outputs.py',
     'globalPlugins/czytelnia/zmq_control.py',
     'globalPlugins/czytelnia/native_seek.py',
     'globalPlugins/czytelnia/controller.py',

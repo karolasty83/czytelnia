@@ -38,6 +38,7 @@ class Host:
     def choose_zip(self): self.calls.append(('zip',))
     def choose_folder(self): self.calls.append(('folder',))
     def show_help(self): self.calls.append(('help',))
+    def show_output_devices(self): self.calls.append(('output_devices',))
     def remove_book(self, key): self.calls.append(('remove', key))
     def dialog_closed(self, dialog): self.calls.append(('closed',))
 
@@ -60,6 +61,21 @@ class DialogTests(unittest.TestCase):
         if hasattr(self, 'dlg') and self.dlg:
             self.dlg.stop_adjustment()
             self.dlg.Destroy()
+    def test_ctrl_w_opens_outputs_once_without_stealing_child_or_modified_keys(self):
+        self.send_key(self.dlg.bookList, ord('W'), ctrl=True)
+        self.assertEqual(self.host.calls, [('output_devices',)])
+        self.send_key(self.dlg.bookList, ord('W'), ctrl=True, repeat=True)
+        for modifiers in ({'ctrl': True, 'shift': True}, {'ctrl': True, 'alt': True},
+                          {'ctrl': True, 'meta': True}, {}):
+            self.send_key(self.dlg.bookList, ord('W'), **modifiers)
+        self.assertEqual(self.host.calls, [('output_devices',)])
+        child = wx.TextEntryDialog(self.dlg, 'Tekst')
+        try:
+            self.send_key(child, ord('W'), ctrl=True)
+            self.assertEqual(self.host.calls, [('output_devices',)])
+        finally:
+            child.Destroy()
+
     def test_selection_play_remove_and_refresh(self):
         self.assertEqual(self.dlg.bookList.GetCount(), 2)
         self.assertEqual(self.dlg.bookList.GetName(), 'Książki w bibliotece')

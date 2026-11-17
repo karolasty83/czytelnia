@@ -1,6 +1,6 @@
-CZYTELNIA 1.01
+CZYTELNIA 1.2
 
-Paczka: czytelnia-1.01.nvda-addon. Skrót globalny: NVDA+Shift+C.
+Paczka: czytelnia-1.2.nvda-addon. Skrót globalny: NVDA+Shift+C.
 Biblioteka nie ma paska menu pod Altem. Pozostają skróty i menu kontekstowe.
 Przycisk Pomoc (F1) oraz F1 w oknie biblioteki otwierają dołączony podręcznik.
 Zachowuje numerację odcinków, pauzę przy zmianie części, zakładki
@@ -53,6 +53,11 @@ Ten sam podręcznik jest dostępny z menadżera dodatków NVDA.
 Menu kontekstowe zaznaczonej książki otwierają klawisz menu, Shift+F10
 lub prawy przycisk myszy. Zawiera: Słuchaj, Zakładki, Wróć do słuchania,
 Przesunięcie numeracji odcinków oraz Usuń książkę. Usuwanie wymaga potwierdzenia.
+Dodatkowo dostępne są Przesuń w górę i Przesuń w dół, tylko jeśli dany ruch
+jest możliwy. Zmieniona kolejność jest zapamiętywana po restarcie.
+Przesunięta książka pozostaje zaznaczona.
+Nie ma nowych skrótów ani komunikatów na granicach. Odtwarzanie, postęp
+oraz zakładki pozostają bez zmian.
 W oknie pozostały przyciski Słuchaj, Pauza / wznów, Dodaj archiwum,
 Dodaj folder, Pomoc (F1) i Zamknij. Pozostałe skróty klawiaturowe są bez zmian.
 
@@ -92,9 +97,10 @@ Ręczny odczyt nie jest wyciszany. Koniec nie jest ustalany z zaokrąglenia czas
 Po przejściu na początek innej części odczyt podaje jej pełny czas, także w pauzie.
 Czas wynika z bieżącego miejsca w nagraniu, a nie z historii słuchania.
 Pominięcie części zmniejsza czas do końca książki, cofnięcie go zwiększa.
-Oba skróty odczytują czas z polską odmianą, np. „3 godziny i 4 minuty”.
-Od minuty wzwyż podają godziny/minuty bez sekund i jednostek zerowych.
-Poniżej minuty podają sekundy. Pozostały czas nagrania dzielimy przez aktualną
+Oba skróty odczytują czas z polską odmianą, np. „15 minut i 44 sekundy”
+albo „3 godziny, 4 minuty i 12 sekund”. Sekundy podawane są również przy
+czasie dłuższym niż minuta; jednostki zerowe są pomijane.
+Pozostały czas nagrania dzielimy przez aktualną
 prędkość, więc najbliższy odczyt od razu uwzględnia zmianę tempa. Nie doliczamy
 pauz ani przerw między odcinkami. Długości w JSON-ie pozostają oryginalne.
 Przy dodawaniu książki ffprobe mierzy długość każdej części. Wyniki są zapisywane
@@ -121,6 +127,17 @@ Podstawowe akcje mają także przyciski obsługiwane Tabulatorem.
 W pustej bibliotece pozostają przyciski Dodaj archiwum, Dodaj folder, Pomoc (F1) i Zamknij.
 Przyciski Słuchaj oraz Pauza / wznów pojawiają się po dodaniu książki.
 Wyłącznik czasowy jest dostępny pod skrótem Shift+T na liście książek.
+
+WYJŚCIE DŹWIĘKU
+Ctrl+W w oknie biblioteki otwiera listę „Urządzenie wyjściowe”.
+Pierwsza pozycja to „Domyślne urządzenie systemowe”, potem dostępne wyjścia.
+Wybierz strzałkami i zatwierdź Enterem lub OK; Escape/Anuluj niczego nie zmienia.
+Wyjście dotyczy tylko książki, nie NVDA ani innych programów.
+Przełączanie zachowuje miejsce, głośność, tempo i stan pauzy.
+Wybór jest wspólny dla książek i zapisany w czytelnia-ustawienia.json.
+Nowy JSON, brak pliku lub brak pola wyjścia w starszym JSON-ie oznacza
+zawsze domyślne wyjście Windows. Niedostępne zapisane urządzenie przy
+uruchomieniu powoduje komunikat i użycie domyślnego wyjścia, bez kasowania wyboru.
 
 PRZESUNIĘCIE NUMERACJI ODCINKÓW
 Zaznacz książkę i na liście naciśnij Ctrl+N albo wybierz z menu kontekstowego

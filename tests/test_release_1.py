@@ -1,4 +1,4 @@
-"""Version 1.01 documentation contract; local files only."""
+"""Version 1.2 documentation contract; local files only."""
 from html.parser import HTMLParser
 from pathlib import Path
 import unittest
@@ -21,11 +21,20 @@ class Text(HTMLParser):
             self.parts.append(data.strip())
 
 class ReleaseTests(unittest.TestCase):
+    def test_manual_documents_seconds_and_output_selection(self):
+        html = (ROOT / 'Czytelnia-podrecznik.html').read_text(encoding='utf-8')
+        parser = Text()
+        parser.feed(html)
+        text = ' '.join(parser.parts)
+        for phrase in ('Ctrl+W', 'Domyślne urządzenie systemowe', '44 sekundy', 'JSON'):
+            self.assertIn(phrase, text)
+        self.assertEqual(html, (ROOT / 'addon/doc/pl/readme.html').read_text(encoding='utf-8'))
+
     def test_manifest_version_and_author(self):
         text = (ROOT / 'addon/manifest.ini').read_text(encoding='utf-8')
         fields = dict(line.split('=', 1) for line in text.splitlines() if '=' in line)
         fields = {k.strip():v.strip().strip('"') for k,v in fields.items()}
-        self.assertEqual(fields['version'], '1.01')
+        self.assertEqual(fields['version'], '1.2')
         self.assertEqual(fields['author'], 'Karol Olejnik')
         self.assertEqual(fields['docFileName'], 'readme.html')
 

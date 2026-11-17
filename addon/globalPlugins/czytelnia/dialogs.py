@@ -200,12 +200,19 @@ class LibraryDialog(wx.Frame):
         self.bookList.SetFocus()
         menu = wx.Menu()
         try:
-            for label, callback in (
-                    ('Słuchaj', self.host.start_book),
-                    ('Zakładki\tCtrl+B', self.host.show_bookmarks),
-                    ('Wróć do słuchania\tCtrl+Shift+B', self.host.return_from_bookmark),
-                    ('Przesunięcie numeracji odcinków…\tCtrl+N', self.host.show_numbering),
-                    ('Usuń\tDelete', self.host.remove_book)):
+            actions = [
+                ('Słuchaj', self.host.start_book),
+                ('Zakładki\tCtrl+B', self.host.show_bookmarks),
+                ('Wróć do słuchania\tCtrl+Shift+B', self.host.return_from_bookmark),
+                ('Przesunięcie numeracji odcinków…\tCtrl+N', self.host.show_numbering),
+            ]
+            index = self.bookList.GetSelection()
+            if index > 0:
+                actions.append(('Przesuń w &górę', lambda key: self.host.move_book(key, -1)))
+            if index + 1 < len(self.books):
+                actions.append(('Przesuń w &dół', lambda key: self.host.move_book(key, 1)))
+            actions.append(('Usuń\tDelete', self.host.remove_book))
+            for label, callback in actions:
                 item = menu.Append(wx.ID_ANY, label)
                 # Capture the ID now, not the selection after a worker refresh.
                 menu.Bind(wx.EVT_MENU, lambda e, callback=callback: callback(book_id), item)
@@ -303,6 +310,11 @@ class LibraryDialog(wx.Frame):
             if not event.IsAutoRepeat():
                 self.stop_adjustment()
                 self.host.show_help()
+            return
+        if ctrl and not (alt or shift or event.MetaDown()) and key == ord('W'):
+            if not event.IsAutoRepeat():
+                self.stop_adjustment()
+                self.host.show_output_devices()
             return
         if ctrl and not (alt or shift or event.MetaDown()) and key == ord('N'):
             focus = self.FindFocus()
